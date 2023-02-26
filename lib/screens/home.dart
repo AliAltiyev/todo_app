@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:time_picker_sheet/widget/sheet.dart';
 import 'package:time_picker_sheet/widget/time_picker.dart';
+
 import '../model/task.dart';
 import '../utils/constants.dart';
 
@@ -13,29 +13,75 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  late List<Task> tasks;
+
+  @override
+  void initState() {
+    super.initState();
+    tasks = [];
+    tasks.add(Task.create('Write code', DateTime.now()));
+    tasks.add(Task.create('Wake up', DateTime.now()));
+    tasks.add(Task.create('Go to  gym', DateTime.now()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          kAppBArTitleText,
-          style: kAppBarTitleStyle,
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.search),
+        appBar: AppBar(
+          title: Text(
+            kAppBArTitleText,
+            style: kAppBarTitleStyle,
           ),
-          IconButton(
-            onPressed: () {
-              _showTaskBottomSheet(context);
-            },
-            icon: const Icon(Icons.add),
-          )
-        ],
-      ),
-      body: Column(),
-    );
+          actions: [
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.search),
+            ),
+            IconButton(
+              onPressed: () {
+                _showTaskBottomSheet(context);
+              },
+              icon: const Icon(Icons.add),
+            )
+          ],
+        ),
+        body: tasks.isNotEmpty
+            ? ListView.builder(
+                itemBuilder: (BuildContext context, int index) {
+                  final task = tasks[index];
+                  return Dismissible(
+                    background: Container(
+                      color: Colors.red,
+                      child: Row(
+                        children: const [
+                          Icon(
+                            Icons.delete,
+                            color: Colors.white,
+                          ),
+                          Text(
+                            'Delete',
+                            style: TextStyle(color: Colors.white),
+                          )
+                        ],
+                      ),
+                    ),
+                    key: UniqueKey(),
+                    onDismissed: (element) {
+                      setState(() {
+                        tasks.removeAt(index);
+                      });
+                    },
+                    child: ListTile(
+                      title: Text(task.name),
+                      subtitle: Text(task.time.toString()),
+                    ),
+                  );
+                },
+                itemCount: tasks.length,
+              )
+            : const Center(
+                child: Text('Today nothing to do'),
+              ));
   }
 
   void _showTaskBottomSheet(BuildContext context) {
@@ -55,35 +101,20 @@ class _HomeState extends State<Home> {
                       onSubmitted: (value) async {
                         if (value.length > 3) {
                           Navigator.of(context).pop();
-                          var time = await TimePicker.show<DateTime?>(
-                              context: context,
-                              dismissible: false,
-                              sheet: TimePickerSheet(
-                                sheetTitle: 'Select meeting schedule',
-                                minuteTitle: 'Minute',
-                                hourTitle: 'Hour',
-                                saveButtonText: 'Save',
-                                saveButtonColor: Colors.deepPurple,
-                                sheetCloseIconColor: Colors.deepPurple,
-                                hourTitleStyle:
-                                    const TextStyle(color: Colors.deepPurple),
-                                minuteTitleStyle:
-                                    const TextStyle(color: Colors.deepPurple),
-                                wheelNumberItemStyle: const TextStyle(
-                                  color: Colors.deepPurple,
-                                ),
-                              ));
+                          var time = await _dateTime(context);
                           final task = Task.create(value.toString(), time!);
-                          debugPrint(task.toString());
+                          setState(() {
+                            tasks.add(task);
+                          });
                         } else {
                           Navigator.of(context).pop();
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               duration: const Duration(seconds: 2),
                               backgroundColor: Colors.deepPurple,
-                              content: Container(
+                              content: SizedBox(
                                 height: 40,
                                 width: MediaQuery.of(context).size.width,
-                                child: Text('You not entered task'),
+                                child: const Text('You not entered task'),
                               )));
                         }
                       },
@@ -94,5 +125,24 @@ class _HomeState extends State<Home> {
             ),
           );
         });
+  }
+
+  Future<DateTime?> _dateTime(BuildContext context) async {
+    return await TimePicker.show<DateTime?>(
+        context: context,
+        dismissible: false,
+        sheet: TimePickerSheet(
+          sheetTitle: 'Select meeting schedule',
+          minuteTitle: 'Minute',
+          hourTitle: 'Hour',
+          saveButtonText: 'Save',
+          saveButtonColor: Colors.deepPurple,
+          sheetCloseIconColor: Colors.deepPurple,
+          hourTitleStyle: const TextStyle(color: Colors.deepPurple),
+          minuteTitleStyle: const TextStyle(color: Colors.deepPurple),
+          wheelNumberItemStyle: const TextStyle(
+            color: Colors.deepPurple,
+          ),
+        ));
   }
 }
