@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-
+import 'package:omni_datetime_picker/omni_datetime_picker.dart';
+import 'package:time_picker_sheet/widget/sheet.dart';
+import 'package:time_picker_sheet/widget/time_picker.dart';
+import '../model/task.dart';
 import '../utils/constants.dart';
 
 class Home extends StatefulWidget {
@@ -49,13 +52,43 @@ class _HomeState extends State<Home> {
               child: Column(
                 children: [
                   TextField(
-                    decoration: InputDecoration(
-                        border: OutlineInputBorder(), labelText: 'Add Task'),
-                  ),
-                  SizedBox(
-                    height: 30,
-                  ),
-                  ElevatedButton(onPressed: () {}, child: Text('save'))
+                      onSubmitted: (value) async {
+                        if (value.length > 3) {
+                          Navigator.of(context).pop();
+                          var time = await TimePicker.show<DateTime?>(
+                              context: context,
+                              dismissible: false,
+                              sheet: TimePickerSheet(
+                                sheetTitle: 'Select meeting schedule',
+                                minuteTitle: 'Minute',
+                                hourTitle: 'Hour',
+                                saveButtonText: 'Save',
+                                saveButtonColor: Colors.deepPurple,
+                                sheetCloseIconColor: Colors.deepPurple,
+                                hourTitleStyle:
+                                    const TextStyle(color: Colors.deepPurple),
+                                minuteTitleStyle:
+                                    const TextStyle(color: Colors.deepPurple),
+                                wheelNumberItemStyle: const TextStyle(
+                                  color: Colors.deepPurple,
+                                ),
+                              ));
+                          final task = Task.create(value.toString(), time!);
+                          debugPrint(task.toString());
+                        } else {
+                          Navigator.of(context).pop();
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              duration: const Duration(seconds: 2),
+                              backgroundColor: Colors.deepPurple,
+                              content: Container(
+                                height: 40,
+                                width: MediaQuery.of(context).size.width,
+                                child: Text('You not entered task'),
+                              )));
+                        }
+                      },
+                      decoration: const InputDecoration(
+                          border: OutlineInputBorder(), labelText: 'Add Task'))
                 ],
               ),
             ),
