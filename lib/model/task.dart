@@ -1,9 +1,15 @@
+import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
+@HiveField(0)
 class Task {
+  @HiveField(0)
   String name;
+  @HiveField(1)
   final String id;
+  @HiveField(2)
   final DateTime time;
+  @HiveField(3)
   bool isCompleted;
 
   Task(
