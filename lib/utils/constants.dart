@@ -6,3 +6,6 @@ final kAppBarTitleStyle = GoogleFonts.andika(
     textStyle:
         const TextStyle(color: Colors.deepPurple, fontWeight: FontWeight.w800));
 const kAppBArTitleText = 'What will you do today?';
+
+//Hive - locale storage
+const boxName = 'tasks';
