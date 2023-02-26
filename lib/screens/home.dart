@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive_using/widgets/task_item.dart';
 import 'package:time_picker_sheet/widget/sheet.dart';
 import 'package:time_picker_sheet/widget/time_picker.dart';
 
@@ -48,7 +49,8 @@ class _HomeState extends State<Home> {
         body: tasks.isNotEmpty
             ? ListView.builder(
                 itemBuilder: (BuildContext context, int index) {
-                  final task = tasks[index];
+                  final reversedTasks = tasks.reversed.toList();
+                  final task = reversedTasks[index];
                   return Dismissible(
                     background: Container(
                       color: Colors.red,
@@ -71,10 +73,7 @@ class _HomeState extends State<Home> {
                         tasks.removeAt(index);
                       });
                     },
-                    child: ListTile(
-                      title: Text(task.name),
-                      subtitle: Text(task.time.toString()),
-                    ),
+                    child: TaskItem(task: task),
                   );
                 },
                 itemCount: tasks.length,
@@ -98,6 +97,8 @@ class _HomeState extends State<Home> {
               child: Column(
                 children: [
                   TextField(
+                      maxLength: null,
+                      autofocus: true,
                       onSubmitted: (value) async {
                         if (value.length > 3) {
                           Navigator.of(context).pop();
