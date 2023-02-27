@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
 @HiveField(0)
-class Task {
+class Task extends HiveObject {
   @HiveField(0)
   String name;
   @HiveField(1)

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hive_using/di/application.dart';
+import 'package:hive_using/localstorage/loacle_storage.dart';
 import 'package:hive_using/widgets/task_item.dart';
 import 'package:time_picker_sheet/widget/sheet.dart';
 import 'package:time_picker_sheet/widget/time_picker.dart';
@@ -15,14 +17,13 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   late List<Task> tasks;
+  late LocaleStorage _localeStorage;
 
   @override
   void initState() {
     super.initState();
-    tasks = [];
-    tasks.add(Task.create('Write code', DateTime.now()));
-    tasks.add(Task.create('Wake up', DateTime.now()));
-    tasks.add(Task.create('Go to  gym', DateTime.now()));
+    _getAllTasksFromDb();
+    _localeStorage = Application.locator<LocaleStorage>();
   }
 
   @override
@@ -70,7 +71,7 @@ class _HomeState extends State<Home> {
                     key: UniqueKey(),
                     onDismissed: (element) {
                       setState(() {
-                        tasks.removeAt(index);
+                        _localeStorage.deleteTask(task);
                       });
                     },
                     child: TaskItem(task: task),
@@ -105,7 +106,7 @@ class _HomeState extends State<Home> {
                           var time = await _dateTime(context);
                           final task = Task.create(value.toString(), time!);
                           setState(() {
-                            tasks.add(task);
+                            _localeStorage.addTask(task);
                           });
                         } else {
                           Navigator.of(context).pop();
@@ -145,5 +146,10 @@ class _HomeState extends State<Home> {
             color: Colors.deepPurple,
           ),
         ));
+  }
+
+  void _getAllTasksFromDb() async {
+    tasks = await _localeStorage.getAllTasks();
+    setState(() {});
   }
 }
