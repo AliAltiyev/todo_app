@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:hive_using/di/application.dart';
 import 'package:hive_using/localstorage/loacle_storage.dart';
-import 'package:hive_using/widgets/task_item.dart';
+import 'package:hive_using/widgets/search_delegate.dart';
+import 'package:hive_using/widgets/task_list_view.dart';
 
 import '../model/task.dart';
 import '../utils/constants.dart';
@@ -30,57 +31,30 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          kAppBArTitleText,
-          style: kAppBarTitleStyle,
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.search),
+        appBar: AppBar(
+          title: Text(
+            kAppBArTitleText,
+            style: kAppBarTitleStyle,
           ),
-          IconButton(
-            onPressed: () {
-              _showTaskBottomSheet(context);
-            },
-            icon: const Icon(Icons.add),
-          )
-        ],
-      ),
-      body: ListView.builder(
-        itemBuilder: (BuildContext context, int index) {
-          final task = tasks[index];
-          return Dismissible(
-            background: Container(
-              color: Colors.red,
-              child: Row(
-                children: const [
-                  Icon(
-                    Icons.delete,
-                    color: Colors.white,
-                  ),
-                  Text(
-                    'Delete',
-                    style: TextStyle(color: Colors.white),
-                  )
-                ],
-              ),
+          actions: [
+            IconButton(
+              onPressed: () {
+                _searchTask(context);
+              },
+              icon: const Icon(Icons.search),
             ),
-            key: UniqueKey(),
-            onDismissed: (element) async {
-              tasks.remove(task);
-              await _localeStorage.deleteTask(task);
-              setState(() {});
-            },
-            child: TaskItem(task: task),
-          );
-        },
-        itemCount: tasks.length,
-      ),
-    );
+            IconButton(
+              onPressed: () {
+                _showTaskBottomSheet(context);
+              },
+              icon: const Icon(Icons.add),
+            )
+          ],
+        ),
+        body: TaskListView(tasks: tasks));
   }
 
+  //Show BottomSheet
   void _showTaskBottomSheet(BuildContext context) {
     showModalBottomSheet(
         context: context,
@@ -125,18 +99,19 @@ class _HomeState extends State<Home> {
         });
   }
 
+  //Get All Tasks from HiveBox
   void _getAllTasksFromDb() async {
     tasks = await _localeStorage.getAllTasks();
     setState(() {});
   }
 
+  //Show DateTimePicker
   void showDateTimePicker(String taskName) async {
     await DatePicker.showTimePicker(context,
-        showSecondsColumn: false,
         showTitleActions: true,
         theme: const DatePickerTheme(
-            headerColor: Colors.deepPurpleAccent,
-            backgroundColor: Colors.deepPurpleAccent,
+            headerColor: Colors.orange,
+            backgroundColor: Colors.blue,
             itemStyle: TextStyle(
                 color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
             doneStyle: TextStyle(color: Colors.white, fontSize: 16)),
@@ -146,5 +121,11 @@ class _HomeState extends State<Home> {
       await _localeStorage.addTask(task);
       setState(() {});
     }, currentTime: DateTime.now(), locale: LocaleType.en);
+  }
+
+  //Search Task
+  void _searchTask(BuildContext context) async {
+    await showSearch(context: context, delegate: CustomSearchDelegate(tasks));
+    _getAllTasksFromDb();
   }
 }
