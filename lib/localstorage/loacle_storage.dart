@@ -3,7 +3,7 @@ import '../model/task.dart';
 abstract class LocaleStorage {
   Future<void> addTask(Task task);
 
-  Future<Task> getTask();
+  Future<Task?> getTask(Task task);
 
   Future<void> deleteTask(Task task);
 

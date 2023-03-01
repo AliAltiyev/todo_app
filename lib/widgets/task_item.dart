@@ -42,7 +42,7 @@ class _TaskItemState extends State<TaskItem> {
   ListTile _listTile(Task task) {
     return ListTile(
         trailing: Text(
-          DateFormat('hh:mm').format(task.time),
+          task.time.toString(),
           style: const TextStyle(
             color: Colors.grey,
           ),

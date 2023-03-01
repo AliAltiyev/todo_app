@@ -4,7 +4,7 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:hive_using/di/application.dart';
 import 'package:hive_using/utils/constants.dart';
-
+import 'model/task.dart';
 import 'screens/home.dart';
 
 void main() async {
@@ -12,7 +12,10 @@ void main() async {
   SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
   await Hive.initFlutter();
-  await Hive.openLazyBox(boxName);
+  Hive.registerAdapter<Task>(TaskAdapter());
+
+  await Hive.openBox<Task>(boxName);
+
   Application.setUp();
   runApp(const MyApp());
 }

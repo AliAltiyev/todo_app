@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:hive_using/di/application.dart';
 import 'package:hive_using/localstorage/loacle_storage.dart';
 import 'package:hive_using/widgets/task_item.dart';
-import 'package:time_picker_sheet/widget/sheet.dart';
-import 'package:time_picker_sheet/widget/time_picker.dart';
 
 import '../model/task.dart';
 import '../utils/constants.dart';
@@ -16,72 +15,69 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  late List<Task> tasks;
   late LocaleStorage _localeStorage;
+  late List<Task> tasks;
 
   @override
   void initState() {
     super.initState();
-    _getAllTasksFromDb();
     _localeStorage = Application.locator<LocaleStorage>();
+    setState(() {});
+    _getAllTasksFromDb();
+    tasks = [];
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            kAppBArTitleText,
-            style: kAppBarTitleStyle,
-          ),
-          actions: [
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.search),
-            ),
-            IconButton(
-              onPressed: () {
-                _showTaskBottomSheet(context);
-              },
-              icon: const Icon(Icons.add),
-            )
-          ],
+      appBar: AppBar(
+        title: Text(
+          kAppBArTitleText,
+          style: kAppBarTitleStyle,
         ),
-        body: tasks.isNotEmpty
-            ? ListView.builder(
-                itemBuilder: (BuildContext context, int index) {
-                  final reversedTasks = tasks.reversed.toList();
-                  final task = reversedTasks[index];
-                  return Dismissible(
-                    background: Container(
-                      color: Colors.red,
-                      child: Row(
-                        children: const [
-                          Icon(
-                            Icons.delete,
-                            color: Colors.white,
-                          ),
-                          Text(
-                            'Delete',
-                            style: TextStyle(color: Colors.white),
-                          )
-                        ],
-                      ),
-                    ),
-                    key: UniqueKey(),
-                    onDismissed: (element) {
-                      setState(() {
-                        _localeStorage.deleteTask(task);
-                      });
-                    },
-                    child: TaskItem(task: task),
-                  );
-                },
-                itemCount: tasks.length,
-              )
-            : const Center(
-                child: Text('Today nothing to do'),
-              ));
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.search),
+          ),
+          IconButton(
+            onPressed: () {
+              _showTaskBottomSheet(context);
+            },
+            icon: const Icon(Icons.add),
+          )
+        ],
+      ),
+      body: ListView.builder(
+        itemBuilder: (BuildContext context, int index) {
+          final task = tasks[index];
+          return Dismissible(
+            background: Container(
+              color: Colors.red,
+              child: Row(
+                children: const [
+                  Icon(
+                    Icons.delete,
+                    color: Colors.white,
+                  ),
+                  Text(
+                    'Delete',
+                    style: TextStyle(color: Colors.white),
+                  )
+                ],
+              ),
+            ),
+            key: UniqueKey(),
+            onDismissed: (element) async {
+              setState(() {});
+              await _localeStorage.deleteTask(task);
+            },
+            child: TaskItem(task: task),
+          );
+        },
+        itemCount: tasks.length,
+      ),
+    );
   }
 
   void _showTaskBottomSheet(BuildContext context) {
@@ -97,31 +93,30 @@ class _HomeState extends State<Home> {
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 children: [
-                  TextField(
-                      maxLength: null,
-                      autofocus: true,
-                      onSubmitted: (value) async {
-                        if (value.length > 3) {
-                          Navigator.of(context).pop();
-                          var time = await _dateTime(context);
-                          final task = Task.create(value.toString(), time!);
-                          setState(() {
-                            _localeStorage.addTask(task);
-                          });
-                        } else {
-                          Navigator.of(context).pop();
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              duration: const Duration(seconds: 2),
-                              backgroundColor: Colors.deepPurple,
-                              content: SizedBox(
-                                height: 40,
-                                width: MediaQuery.of(context).size.width,
-                                child: const Text('You not entered task'),
-                              )));
-                        }
-                      },
-                      decoration: const InputDecoration(
-                          border: OutlineInputBorder(), labelText: 'Add Task'))
+                  Expanded(
+                    child: TextField(
+                        maxLength: null,
+                        autofocus: true,
+                        onSubmitted: (value) async {
+                          if (value.length > 3) {
+                            Navigator.of(context).pop();
+                            showDateTimePicker(value);
+                          } else {
+                            Navigator.of(context).pop();
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                duration: const Duration(seconds: 2),
+                                backgroundColor: Colors.deepPurple,
+                                content: SizedBox(
+                                  height: 40,
+                                  width: MediaQuery.of(context).size.width,
+                                  child: const Text('You not entered task'),
+                                )));
+                          }
+                        },
+                        decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Add Task')),
+                  )
                 ],
               ),
             ),
@@ -129,27 +124,27 @@ class _HomeState extends State<Home> {
         });
   }
 
-  Future<DateTime?> _dateTime(BuildContext context) async {
-    return await TimePicker.show<DateTime?>(
-        context: context,
-        dismissible: false,
-        sheet: TimePickerSheet(
-          sheetTitle: 'Select meeting schedule',
-          minuteTitle: 'Minute',
-          hourTitle: 'Hour',
-          saveButtonText: 'Save',
-          saveButtonColor: Colors.deepPurple,
-          sheetCloseIconColor: Colors.deepPurple,
-          hourTitleStyle: const TextStyle(color: Colors.deepPurple),
-          minuteTitleStyle: const TextStyle(color: Colors.deepPurple),
-          wheelNumberItemStyle: const TextStyle(
-            color: Colors.deepPurple,
-          ),
-        ));
+  void _getAllTasksFromDb() async {
+    await _localeStorage.getAllTasks().then((value) => {
+          setState(() {
+            tasks = value;
+          }),
+        });
   }
 
-  void _getAllTasksFromDb() async {
-    tasks = await _localeStorage.getAllTasks();
-    setState(() {});
+  void showDateTimePicker(String taskName) async {
+    await DatePicker.showTimePicker(context,
+        showTitleActions: true,
+        theme: const DatePickerTheme(
+            headerColor: Colors.orange,
+            backgroundColor: Colors.blue,
+            itemStyle: TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+            doneStyle: TextStyle(color: Colors.white, fontSize: 16)),
+        onConfirm: (date) async {
+      final task = Task.create(taskName, date);
+      setState(() {});
+      await _localeStorage.addTask(task);
+    }, currentTime: DateTime.now(), locale: LocaleType.en);
   }
 }

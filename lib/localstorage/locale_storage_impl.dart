@@ -1,38 +1,39 @@
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:hive_using/localstorage/loacle_storage.dart';
 import 'package:hive_using/model/task.dart';
 
-class HiveLocaleStorage extends LocaleStorage{
+import '../utils/constants.dart';
 
-  @override
-  Future<void> addTask(Task task) {
-    // TODO: implement addTask
-    throw UnimplementedError();
+class HiveLocaleStorage extends LocaleStorage {
+  late Box<Task> _box;
+
+  HiveLocaleStorage() {
+    _box = Hive.box(boxName);
   }
 
   @override
-  Future<void> deleteTask(Task task) {
-    // TODO: implement deleteTask
-    throw UnimplementedError();
+  Future<void> addTask(Task task) async {
+    await _box.put(task.id, task);
   }
 
   @override
-  Future<List<Task>> getAllTasks() {
-    // TODO: implhement getAllTasks
-    throw UnimplementedError();
+  Future<void> deleteTask(Task task) async {
+    await task.delete();
   }
 
   @override
-  Future<Task> getTask() {
-    // TODO: implement getTask
-    throw UnimplementedError();
+  Future<List<Task>> getAllTasks() async {
+    return _box.values.toList();
   }
 
   @override
-  Future<void> updateTask(Task task) {
-    // TODO: implement updateTask
-    throw UnimplementedError();
+  Future<Task?> getTask(Task task) async {
+    return _box.get(task.id);
   }
 
-
-
+  @override
+  Future<void> updateTask(Task task) async {
+    await task.save();
+  }
 }
