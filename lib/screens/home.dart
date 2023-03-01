@@ -25,7 +25,6 @@ class _HomeState extends State<Home> {
     setState(() {});
     tasks = [];
     _getAllTasksFromDb();
-
   }
 
   @override
@@ -70,8 +69,9 @@ class _HomeState extends State<Home> {
             ),
             key: UniqueKey(),
             onDismissed: (element) async {
-              setState(() {});
+              tasks.remove(task);
               await _localeStorage.deleteTask(task);
+              setState(() {});
             },
             child: TaskItem(task: task),
           );
@@ -128,15 +128,15 @@ class _HomeState extends State<Home> {
   void _getAllTasksFromDb() async {
     tasks = await _localeStorage.getAllTasks();
     setState(() {});
-
   }
 
   void showDateTimePicker(String taskName) async {
     await DatePicker.showTimePicker(context,
+        showSecondsColumn: false,
         showTitleActions: true,
         theme: const DatePickerTheme(
-            headerColor: Colors.orange,
-            backgroundColor: Colors.blue,
+            headerColor: Colors.deepPurpleAccent,
+            backgroundColor: Colors.deepPurpleAccent,
             itemStyle: TextStyle(
                 color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
             doneStyle: TextStyle(color: Colors.white, fontSize: 16)),
@@ -144,8 +144,7 @@ class _HomeState extends State<Home> {
       final task = Task.create(taskName, date);
       tasks.add(task);
       await _localeStorage.addTask(task);
-      setState(() {
-      });
+      setState(() {});
     }, currentTime: DateTime.now(), locale: LocaleType.en);
   }
 }
