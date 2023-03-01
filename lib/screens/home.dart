@@ -23,8 +23,9 @@ class _HomeState extends State<Home> {
     super.initState();
     _localeStorage = Application.locator<LocaleStorage>();
     setState(() {});
-    _getAllTasksFromDb();
     tasks = [];
+    _getAllTasksFromDb();
+
   }
 
   @override
@@ -125,11 +126,9 @@ class _HomeState extends State<Home> {
   }
 
   void _getAllTasksFromDb() async {
-    await _localeStorage.getAllTasks().then((value) => {
-          setState(() {
-            tasks = value;
-          }),
-        });
+    tasks = await _localeStorage.getAllTasks();
+    setState(() {});
+
   }
 
   void showDateTimePicker(String taskName) async {
@@ -143,8 +142,10 @@ class _HomeState extends State<Home> {
             doneStyle: TextStyle(color: Colors.white, fontSize: 16)),
         onConfirm: (date) async {
       final task = Task.create(taskName, date);
-      setState(() {});
+      tasks.add(task);
       await _localeStorage.addTask(task);
+      setState(() {
+      });
     }, currentTime: DateTime.now(), locale: LocaleType.en);
   }
 }

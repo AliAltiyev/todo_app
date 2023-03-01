@@ -17,7 +17,6 @@ class _TaskItemState extends State<TaskItem> {
   @override
   void initState() {
     super.initState();
-
     _taskController.text = widget.task.name;
   }
 

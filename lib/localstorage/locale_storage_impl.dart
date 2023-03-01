@@ -9,7 +9,7 @@ class HiveLocaleStorage extends LocaleStorage {
   late Box<Task> _box;
 
   HiveLocaleStorage() {
-    _box = Hive.box(boxName);
+    _box = Hive.box<Task>('tasks');
   }
 
   @override
@@ -18,13 +18,19 @@ class HiveLocaleStorage extends LocaleStorage {
   }
 
   @override
-  Future<void> deleteTask(Task task) async {
+  Future<bool> deleteTask(Task task) async {
     await task.delete();
+    return true;
   }
 
   @override
   Future<List<Task>> getAllTasks() async {
-    return _box.values.toList();
+    List<Task> allTasks = [];
+    allTasks = _box.values.toList();
+    if (allTasks.isNotEmpty) {
+      allTasks.sort((Task a, Task b) => a.time.compareTo(b.time));
+    }
+    return allTasks;
   }
 
   @override
@@ -33,7 +39,8 @@ class HiveLocaleStorage extends LocaleStorage {
   }
 
   @override
-  Future<void> updateTask(Task task) async {
+  Future<Task> updateTask(Task task) async {
     await task.save();
+    return task;
   }
 }
