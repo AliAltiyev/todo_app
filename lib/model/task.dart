@@ -1,14 +1,16 @@
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
-@HiveField(0)
+part 'task.g.dart';
+
+@HiveType(typeId: 0)
 class Task extends HiveObject {
   @HiveField(0)
   String name;
   @HiveField(1)
   final String id;
   @HiveField(2)
-  final DateTime time;
+  DateTime time;
   @HiveField(3)
   bool isCompleted;
 
