@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:hive_using/di/application.dart';
-import 'package:hive_using/localstorage/loacle_storage.dart';
-import 'package:hive_using/utils/constants.dart';
-import 'localstorage/locale_storage_impl.dart';
+import 'package:easy_localization/easy_localization.dart';
+
 import 'model/task.dart';
 import 'screens/home.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
   await Hive.initFlutter();
   Hive.registerAdapter<Task>(TaskAdapter());
   await Hive.openBox<Task>('tasks');
 
-
   Application.setUp();
-  runApp(const MyApp());
+  runApp(EasyLocalization(
+      supportedLocales: const [Locale('ru', 'RU')],
+      path: 'assets/translations',
+      // <-- change the path of the translation files
+      fallbackLocale: const Locale('en', 'US'),
+      child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -28,6 +31,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
       debugShowCheckedModeBanner: false,
       title: 'To do',
       theme: ThemeData(

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:hive_using/di/application.dart';
@@ -84,13 +85,14 @@ class _HomeState extends State<Home> {
                                 content: SizedBox(
                                   height: 40,
                                   width: MediaQuery.of(context).size.width,
-                                  child: const Text('You not entered task'),
+                                  child:
+                                      const Text('snackBarErrorMessage').tr(),
                                 )));
                           }
                         },
-                        decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Add Task')),
+                        decoration: InputDecoration(
+                            border: const OutlineInputBorder(),
+                            labelText: 'textFieldLabelText'.tr())),
                   )
                 ],
               ),
