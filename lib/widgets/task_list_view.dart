@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_using/localstorage/loacle_storage.dart';
 import 'package:hive_using/widgets/task_item.dart';
@@ -32,15 +33,15 @@ class _TaskListViewState extends State<TaskListView> {
           background: Container(
             color: Colors.red,
             child: Row(
-              children: const [
-                Icon(
+              children: [
+                const Icon(
                   Icons.delete,
                   color: Colors.white,
                 ),
-                Text(
-                  'Delete',
+                const Text(
+                  'delete',
                   style: TextStyle(color: Colors.white),
-                )
+                ).tr()
               ],
             ),
           ),

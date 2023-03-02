@@ -1,0 +1,6 @@
+{
+  "appBarTitle": "What will you do today?",
+  "delete": "Delete\n",
+  "textFieldLabelText": "Add Task",
+  "snackBarErrorMessage": "You didn't enter a task or the task name must be longer than 3 characters\n"
+}
