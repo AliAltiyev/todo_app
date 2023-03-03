@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:hive_using/di/application.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:hive_using/screens/sing_up.dart';
 import 'package:hive_using/screens/splash.dart';
 
 import 'firebase_options.dart';
@@ -45,9 +46,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       routes: {
         '/splash': (context) => const Splash(),
-        '/home': (context) => const Home()
+        '/home': (context) => const Home(),
+        '/sign_up': (context) => const SignUp()
       },
-      initialRoute: '/splash',
+      initialRoute: '/sign_up',
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
@@ -60,7 +62,6 @@ class MyApp extends StatelessWidget {
             iconTheme: IconThemeData(color: Colors.deepPurple, size: 32)),
         primarySwatch: Colors.deepPurple,
       ),
-
     );
   }
 }
