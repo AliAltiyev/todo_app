@@ -24,7 +24,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 340,
-      height: 60,
+      height: 70,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
         child: TextField(
@@ -37,9 +37,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
           textInputAction: TextInputAction.done,
           controller: widget.textEditingController,
           decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.grey.withOpacity(0.1),
               focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(
+                  borderSide: const BorderSide(
                       color: Color.fromRGBO(28, 25, 57, 1),
                       width: 2,
                       strokeAlign: 2)),
