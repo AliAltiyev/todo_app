@@ -49,7 +49,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const Home(),
         '/sign_up': (context) => const SignUp()
       },
-      initialRoute: '/sign_up',
+      initialRoute: '/splash',
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,

@@ -17,7 +17,7 @@ class _SplashState extends State<Splash> {
 
   _navigation() async {
     await Future.delayed(Duration(seconds: 3));
-    Navigator.pushReplacementNamed(context, '/home');
+    Navigator.pushReplacementNamed(context, '/sign_up');
   }
 
   @override
@@ -31,7 +31,6 @@ class _SplashState extends State<Splash> {
       child: Stack(
         children: [
           Positioned(
-            // bankeewdf (0:218)
             left: 89,
             top: 370,
             child: Align(
