@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hive_using/utils/constants.dart';
 
 class CustomButton extends StatefulWidget {
   final VoidCallback callback;
   final String buttonText;
-  final Color color;
+  final Color backgroundColor;
+  final String? imagePath;
+  final Color? foregroundColor;
 
   const CustomButton(
       {Key? key,
       required this.callback,
       required this.buttonText,
-      required this.color})
+      required this.backgroundColor,
+      this.imagePath, this.foregroundColor})
       : super(key: key);
 
   @override
@@ -28,11 +32,32 @@ class _CustomButtonState extends State<CustomButton> {
             shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16))),
             fixedSize: const MaterialStatePropertyAll(Size(340, 70)),
-            foregroundColor: const MaterialStatePropertyAll(Colors.white),
-            backgroundColor: MaterialStatePropertyAll(widget.color)),
-        child: Text(
-          widget.buttonText,
-          style: appTextStyle(20, FontWeight.bold, color: Colors.white),
+            foregroundColor:  MaterialStatePropertyAll(widget.foregroundColor),
+            backgroundColor: MaterialStatePropertyAll(widget.backgroundColor)),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (widget.imagePath != null)
+              CircleAvatar(
+                radius: 16,
+                child: SvgPicture.asset(
+                  widget.imagePath ?? '',
+                ),
+              )
+            else
+              const SizedBox(
+                width: 0,
+                height: 0,
+              ),
+            SizedBox(
+              width: 10,
+            ),
+            Text(
+              widget.buttonText,
+              style: appTextStyle(18, FontWeight.bold, color: widget.foregroundColor),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );

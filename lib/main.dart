@@ -4,8 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:hive_using/di/application.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:hive_using/screens/sing_up.dart';
+import 'package:hive_using/screens/signup/sign_up_with_phone_number.dart';
+import 'package:hive_using/screens/signup/sing_up.dart';
 import 'package:hive_using/screens/splash.dart';
+import 'package:hive_using/utils/constants.dart';
 
 import 'firebase_options.dart';
 import 'model/task.dart';
@@ -45,11 +47,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       routes: {
-        '/splash': (context) => const Splash(),
-        '/home': (context) => const Home(),
-        '/sign_up': (context) => const SignUp()
+        kSplashScreen: (context) => const Splash(),
+        kHomeScreen: (context) => const Home(),
+        kSignUpScreen: (context) => const SignUp(),
+        kSignUpWithPhoneNumberScreen: (context) => const SignUpWithPhoneNumber()
       },
-      initialRoute: '/splash',
+      initialRoute: kSplashScreen,
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
