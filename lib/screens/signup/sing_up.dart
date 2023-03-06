@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hive_using/utils/constants.dart';
 import 'package:hive_using/widgets/button.dart';
 import 'package:hive_using/widgets/text_field.dart';
@@ -12,7 +14,7 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
-  late  FirebaseAuth _firebaseAuth;
+  late FirebaseAuth _firebaseAuth;
   final TextEditingController _userNameTextController = TextEditingController();
   final TextEditingController _emailTextController = TextEditingController();
   final TextEditingController _passwordTextController = TextEditingController();
@@ -22,8 +24,8 @@ class _SignUpState extends State<SignUp> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    _firebaseAuth = FirebaseAuth.instance;
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -59,54 +61,55 @@ class _SignUpState extends State<SignUp> {
                 ),
                 CustomTextField(
                     textEditingController: _userNameTextController,
-                    labelText: 'Username',
+                    labelText: kUsernameText,
                     textInputType: TextInputType.text),
+
                 CustomTextField(
                     textEditingController: _emailTextController,
-                    labelText: 'Email',
+                    labelText: kEmailText,
                     textInputType: TextInputType.emailAddress),
                 CustomTextField(
                     obscureText: true,
                     textEditingController: _passwordTextController,
-                    labelText: 'Password',
+                    labelText: kPasswordText,
                     textInputType: TextInputType.text),
                 _acceptingTermsAndConditions(),
                 const SizedBox(
                   height: 30,
                 ),
+                //Just sign up
                 CustomButton(
                     callback: () {
-                      if (_checkBoxState == true) {
-                        debugPrint('with phone number');
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                            content: Text(
-                                'You are not confirmed terms and conditions')));
-                      }
+                      _registerUser();
                     },
-                    buttonText: 'Sign Up',
-                    color: kSignUpButtonColor),
+                    buttonText: kSignUpButtonText,
+                    backgroundColor: kSignUpButtonColor),
+                //Sign up with phone number
                 CustomButton(
                     callback: () {
-                      if (_checkBoxState == true) {
-
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                            content: Text(
-                                'You are not confirmed terms and conditions')));
-                      }
+                      Navigator.of(context)
+                          .pushNamed(kSignUpWithPhoneNumberScreen);
                     },
-                    buttonText: 'Sign Up with phone number',
-                    color: kMainAppColor),
+                    buttonText: kSignUpWithPhoneNumberButtonText,
+                    backgroundColor: kMainAppColor),
+                //Sign up with google account
+                CustomButton(
+                    foregroundColor: kMainAppColor,
+                    callback: () {
+                      _registerWithGoogleAccount();
+                    },
+                    buttonText: kSignUpWithGoogleAccountButtonText,
+                    imagePath: kGoogleIconPath,
+                    backgroundColor: Colors.white),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Already have an account?',
+                    Text(kAlreadyHveAccountText,
                         style: appTextStyle(14, FontWeight.normal)),
                     TextButton(
                         onPressed: () {},
                         child: Text(
-                          'Sign In',
+                          kSignUpButtonText,
                           style: appTextStyle(16, FontWeight.bold),
                         ))
                   ],
@@ -119,7 +122,7 @@ class _SignUpState extends State<SignUp> {
     );
   }
 
-  _acceptingTermsAndConditions() {
+  Widget _acceptingTermsAndConditions() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -147,5 +150,69 @@ class _SignUpState extends State<SignUp> {
         ],
       ),
     );
+  }
+
+  void _registerUser() async {
+    if (_emailTextController.text.isNotEmpty &&
+        _passwordTextController.text.isNotEmpty &&
+        _userNameTextController.text.isNotEmpty &&
+        _checkBoxState == true) {
+      try {
+        final userCredential =
+            await _firebaseAuth.createUserWithEmailAndPassword(
+                email: _emailTextController.text,
+                password: _passwordTextController.text);
+        final user = userCredential.user;
+        if (user != null) {
+          if (user.emailVerified) {
+            if (mounted) {
+              Navigator.of(context)
+                  .pushReplacementNamed('/home', arguments: userCredential);
+            }
+          } else {
+            await user.sendEmailVerification();
+            if (mounted) {
+              showCustomSnackBar(
+                'We sent email verification link,please verify for sign up',
+                context,
+                kMainAppColor,
+              );
+            }
+          }
+        }
+      } on FirebaseAuthException catch (e) {
+        debugPrint(e.toString());
+      }
+    } else {
+      showCustomSnackBar(
+        'Please provide following details for your new account',
+        context,
+        Colors.redAccent,
+      );
+    }
+  }
+
+//TODO Should fix this bug,user can sign up if he once Signed up
+  Future<void> _registerWithGoogleAccount() async {
+    // Trigger the authentication flow
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication? googleAuth =
+        await googleUser?.authentication;
+
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+
+    // Once signed in, return the UserCredential
+    var user = await FirebaseAuth.instance.signInWithCredential(credential);
+    if (user.user != null) {
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed(kHomeScreen);
+      }
+    }
   }
 }
